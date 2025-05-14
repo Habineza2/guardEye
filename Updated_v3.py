@@ -20,6 +20,7 @@ import time
 import sqlite3
 import pickle
 from werkzeug.utils import secure_filename
+from ultralytics import YOLO
 
 
 
@@ -53,6 +54,7 @@ app = Flask(__name__)
 
 
 model = load_model('my_model.keras', compile=False)
+yolo_model = YOLO("yolov8n.pt")
 
 LOCK_PIN = 18  # Example GPIO pin number
 GPIO.setmode(GPIO.BCM)
@@ -188,11 +190,11 @@ def load_known_faces(db_path='users.db'):
 
 
 
-def log_intrusion(image_path, emotion, is_thief,  name="Unknown"):
+def log_intrusion(image_path, emotion, is_thief):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("INSERT INTO intrusions (timestamp, image_path, emotion, is_thief, name) VALUES (?, ?, ?, ?, ?)",
-          (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), image_path, emotion, int(is_thief), name))
+    c.execute("INSERT INTO intrusions (timestamp, image_path, emotion, is_thief) VALUES (?, ?, ?, ?)",
+          (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), image_path, emotion, int(is_thief)))
 
     conn.commit()
     conn.close()
@@ -240,10 +242,11 @@ def register_user(name, email, phone, image_paths):
             if len(encodings) == 0:
                 print(f"⚠️ No face found in {image_path}. Skipping.")
                 continue
-
-            encoding_blob = encodings[0].tobytes()
-            c.execute("INSERT INTO user_encodings (user_id, encoding) VALUES (?, ?)", (user_id, encoding_blob))
-            encodings_stored += 1
+            
+            for encoding in encodings:
+              encoding_blob = encoding.tobytes()
+              c.execute("INSERT INTO face_encodings (user_id, encoding) VALUES (?, ?)", (user_id, encoding_blob))
+              encodings_stored += 1
 
         if encodings_stored == 0:
             print("❌ No valid face encodings found. Registration failed.")
@@ -270,82 +273,97 @@ def register_user(name, email, phone, image_paths):
 def detect_faces():
     global frame_to_show, detecting
 
-    # Load known face encodings and names from the database
     known_encodings, known_names = load_known_faces()
 
     image_count = 0
     last_save_time = 0
     save_interval = 10  # seconds
-    threshold = 0.5  # Adjusted: face_recognition typical threshold is 0.4 - 0.6
+    threshold = 0.2
+    frame_count = 0
 
     while detecting:
-        success, frame = camera.read()
+        success, full_frame = camera.read()
         if not success:
             continue
 
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_count += 1
+        display_frame = full_frame.copy()
+
+        # Crop area of interest
+        y1, y2 = 100, 400
+        x1, x2 = 150, 500
+        detection_frame = full_frame[y1:y2, x1:x2]
+        rgb_frame = cv2.cvtColor(detection_frame, cv2.COLOR_BGR2RGB)
 
         try:
-            locations = face_recognition.face_locations(rgb_frame)
-            encodings = face_recognition.face_encodings(rgb_frame, locations)
+            face_locations = face_recognition.face_locations(rgb_frame)
+            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
         except Exception as e:
             print(f"[ERROR] Face detection error: {e}")
             continue
 
-        for (top, right, bottom, left), face_encoding in zip(locations, encodings):
-            matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=threshold)
-            face_distances = face_recognition.face_distance(known_encodings, face_encoding)
-            best_match_index = np.argmin(face_distances) if len(face_distances) > 0 else -1
+        if face_locations:
+            for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+                matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=threshold)
+                face_distances = face_recognition.face_distance(known_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances) if len(face_distances) > 0 else -1
 
-            name = "Unknown"
+                name = "Unknown"
+                if best_match_index != -1 and matches[best_match_index]:
+                    name = known_names[best_match_index]
+                    image_path = f"{output_dir}/{name}_{image_count}.jpg"
+                    cv2.imwrite(image_path, detection_frame)
+                    open_lock()
+                    print(f"[INFO] Known person detected: {name}")
+                else:
+                    now = time.time()
+                    if now - last_save_time > save_interval:
+                        image_count += 1
+                        image_path = f"{output_dir}/Unknown_{image_count}.jpg"
+                        print("[INFO] Unknown person detected")
+                        try:
+                            cv2.imwrite(image_path, detection_frame)
+                            emotion_result = analyze_emotion(detection_frame)
+                            thief = analyze_thief(image_path)
+                            dominant_emotion = emotion_result[0]['dominant_emotion'] if emotion_result else "Unknown"
 
-            if best_match_index != -1 and matches[best_match_index]:
-                name = known_names[best_match_index]
-                image_path = f"{output_dir}/{name}_{image_count}.jpg"
-                cv2.imwrite(image_path, frame)
-                open_lock()
-                print(f"[INFO] Known person detected: {name}")
+                            if thief:
+                                send_email_alert(image_path)
+                            log_intrusion(image_path, dominant_emotion, thief)
 
-            else:
-                now = time.time()
-                if now - last_save_time > save_interval:
-                    image_count += 1
-                    image_path = f"{output_dir}/Unknown_{image_count}.jpg"
-                    print("[INFO] Unknown person detected")
+                            if emotion_result:
+                                print(f"[INFO] Emotion detected: {dominant_emotion}")
+                        except Exception as e:
+                            print(f"[ERROR] Error processing unknown face: {e}")
+                        last_save_time = now
 
-                    try:
-                        cv2.imwrite(image_path, frame)
-                        emotion_result = analyze_emotion(frame)
-                        thief = analyze_thief(image_path)
-                        dominant_emotion = emotion_result[0]['dominant_emotion'] if emotion_result else "Unknown"
+                # Adjust coordinates to full frame
+                top += y1
+                bottom += y1
+                left += x1
+                right += x1
+                color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
+                cv2.rectangle(display_frame, (left, top), (right, bottom), color, 2)
+                cv2.putText(display_frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
 
-                        if thief:
-                            send_email_alert(image_path)
-
-                        log_intrusion(image_path, dominant_emotion, thief)
-
-                        if emotion_result:
-                            print(f"[INFO] Emotion detected: {dominant_emotion}")
-
-                    except Exception as e:
-                        print(f"[ERROR] Error processing unknown face: {e}")
-
-                    last_save_time = now
-
-            # Draw rectangle and label
-            color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-            cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
+        else:
+            print("[WARNING] No face detected. Running YOLO for suspicious activity...")
+            if frame_count % 3 == 0:
+                try:
+                    results = yolo_model(full_frame, conf=0.25)
+                    suspicious, persons = detect_suspicious_activity(full_frame, results[0], face_locations)
+                    if suspicious:
+                        for box in persons:
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])
+                            cv2.rectangle(display_frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                            cv2.putText(display_frame, "Suspicious", (x1, y1 - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        print("[ALERT] Suspicious person detected hiding their face.")
+                except Exception as e:
+                    print(f"[ERROR] YOLO failed: {e}")
 
         with frame_lock:
-            frame_to_show = frame.copy()
-
-
-
-
-
-
-
+            frame_to_show = display_frame.copy()
 
 
 
@@ -577,7 +595,7 @@ def view_users():
 def view_intrusions():
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("SELECT id, timestamp, image_path, emotion, is_thief FROM intrusions ORDER BY timestamp DESC, name")
+    c.execute("SELECT id, timestamp, image_path, emotion, is_thief FROM intrusions ORDER BY timestamp DESC" )
     logs = c.fetchall()
     conn.close()
     return render_template('intrusions.html', logs=logs)
