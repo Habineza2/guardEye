@@ -259,11 +259,56 @@ def register_user(name, email, phone, image_paths):
         print(f"❌ Registration failed: {e}")
     finally:
         conn.close()
+        
 
 
+def detect_suspicious_activity(frame, results, face_locations, recent_alerts, alert_cooldown=30):
+    suspicious_detected = False
+    suspicious_boxes = []
+    current_time = time.time()
 
+    persons = [det for det in results.boxes if results.names[int(det.cls)] == "person"]
+    total_persons = len(persons)
+    visible_faces = len(face_locations)
 
+    if total_persons > 0:
+        print(f"[INFO] YOLO detected {total_persons} persons, {visible_faces} faces detected")
 
+        if visible_faces == 0 or visible_faces < total_persons // 2:
+            print(f"[ALERT] Suspicious activity detected - {total_persons} persons but only {visible_faces} faces visible")
+            suspicious_detected = True
+
+            for i, box in enumerate(persons):
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                x1, y1 = max(0, x1), max(0, y1)
+                x2, y2 = min(frame.shape[1], x2), min(frame.shape[0], y2)
+                cropped_person = frame[y1:y2, x1:x2]
+
+                # Generate a simple hash using bounding box position to track alerts
+                person_id = f"{x1}-{y1}-{x2}-{y2}"
+                if person_id in recent_alerts and current_time - recent_alerts[person_id] < alert_cooldown:
+                    print(f"[INFO] Skipping duplicate alert for person {person_id}")
+                    continue
+
+                person_path = f"suspicious_person_{int(current_time)}_{i}.jpg"
+                cv2.imwrite(person_path, cropped_person)
+
+                try:
+                    thief = analyze_thief(person_path)
+
+                    if thief:
+                        print(f"[THREAT] Thief detected in region {person_path}")
+                        send_email_alert(person_path)
+                        log_intrusion(person_path, "Suspicious", thief)
+                    else:
+                        print(f"[INFO] Person in region {person_path} not classified as thief")
+                except Exception as e:
+                    print(f"[ERROR] Model failed on suspicious person: {e}")
+
+                recent_alerts[person_id] = current_time
+                suspicious_boxes.append(box)
+
+    return suspicious_detected, suspicious_boxes
 
 
 
@@ -274,12 +319,14 @@ def detect_faces():
     global frame_to_show, detecting
 
     known_encodings, known_names = load_known_faces()
-
     image_count = 0
     last_save_time = 0
-    save_interval = 10  # seconds
+    save_interval = 10
     threshold = 0.2
     frame_count = 0
+    yolo_delay_seconds = 5
+    start_time = time.time()
+    recent_alerts = {}
 
     while detecting:
         success, full_frame = camera.read()
@@ -289,7 +336,6 @@ def detect_faces():
         frame_count += 1
         display_frame = full_frame.copy()
 
-        # Crop area of interest
         y1, y2 = 100, 400
         x1, x2 = 150, 500
         detection_frame = full_frame[y1:y2, x1:x2]
@@ -306,7 +352,7 @@ def detect_faces():
             for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
                 matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=threshold)
                 face_distances = face_recognition.face_distance(known_encodings, face_encoding)
-                best_match_index = np.argmin(face_distances) if len(face_distances) > 0 else -1
+                best_match_index = np.argmin(face_distances) if face_distances else -1
 
                 name = "Unknown"
                 if best_match_index != -1 and matches[best_match_index]:
@@ -337,7 +383,6 @@ def detect_faces():
                             print(f"[ERROR] Error processing unknown face: {e}")
                         last_save_time = now
 
-                # Adjust coordinates to full frame
                 top += y1
                 bottom += y1
                 left += x1
@@ -347,23 +392,39 @@ def detect_faces():
                 cv2.putText(display_frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
 
         else:
-            print("[WARNING] No face detected. Running YOLO for suspicious activity...")
-            if frame_count % 3 == 0:
+            if time.time() - start_time > yolo_delay_seconds and frame_count % 3 == 0:
+                print("[WARNING] No face detected. Running YOLO for suspicious activity...")
                 try:
                     results = yolo_model(full_frame, conf=0.25)
-                    suspicious, persons = detect_suspicious_activity(full_frame, results[0], face_locations)
+                    suspicious, suspicious_boxes = detect_suspicious_activity(full_frame, results[0], face_locations, recent_alerts)
+
                     if suspicious:
-                        for box in persons:
+                        for box in suspicious_boxes:
                             x1, y1, x2, y2 = map(int, box.xyxy[0])
+                            person_crop = full_frame[y1:y2, x1:x2]
+                            image_path = f"{output_dir}/Suspicious_{image_count}.jpg"
+                            cv2.imwrite(image_path, person_crop)
+
+                            thief = analyze_thief(image_path)
+                            if thief:
+                                print("[ALERT] Thief detected! Sending email alert.")
+                                send_email_alert(image_path)
+                                log_intrusion(image_path, "Face Hidden", thief)
+                            else:
+                                print("[INFO] Suspicious but not a thief.")
+
                             cv2.rectangle(display_frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
                             cv2.putText(display_frame, "Suspicious", (x1, y1 - 10),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                        print("[ALERT] Suspicious person detected hiding their face.")
+
+                        image_count += 1
                 except Exception as e:
                     print(f"[ERROR] YOLO failed: {e}")
 
         with frame_lock:
             frame_to_show = display_frame.copy()
+
+
 
 
 

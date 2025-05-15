@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Detection System</title>
+</head>
+<body>
+    <h1>Face Detection System</h1>
+    <div>
+        <button onclick="fetch('/start')">Start Detection</button>
+        <button onclick="fetch('/stop')">Stop Detection</button>
+    </div>
+    <div>
+        <img src="{{ url_for('video_feed') }}" width="720" />
+    </div>
+</body>
+</html>

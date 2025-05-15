@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Profile</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    :root {
+      --dark-blue: #0d1b2a;
+      --light-blue: #1b263b;
+      --accent: #415a77;
+      --white: #e0e1dd;
+      --error: #e63946;
+      --success: #2a9d8f;
+      --input-bg: #2c3e50;
+      --input-shadow-light: rgba(255,255,255,0.1);
+      --input-shadow-dark: rgba(0,0,0,0.5);
+      --btn-bg: #0077b6;
+      --btn-hover: #023e8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0d1b2a, #1b263b);
+      color: var(--white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .profile-container {
+      background: linear-gradient(145deg, #243447, #1a283a);
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow:
+        8px 8px 20px rgba(0,0,0,0.7),
+        -8px -8px 20px rgba(55,85,130,0.3);
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2.25rem;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--white);
+      text-align: left;
+      user-select: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      border: none;
+      border-radius: 12px;
+      background: var(--input-bg);
+      color: var(--white);
+      font-size: 1rem;
+      box-shadow:
+        inset 4px 4px 6px var(--input-shadow-dark),
+        inset -4px -4px 6px var(--input-shadow-light);
+      transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+
+    input::placeholder {
+      color: #a3b1c6;
+      font-style: italic;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      box-shadow:
+        inset 4px 4px 8px var(--input-shadow-dark),
+        inset -4px -4px 8px var(--input-shadow-light),
+        0 0 8px 2px #1ca7ec;
+      background-color: #1f2e43;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--btn-bg);
+      color: var(--white);
+      border: none;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow:
+        4px 4px 8px rgba(0, 119, 182, 0.5),
+        -4px -4px 8px rgba(0, 119, 182, 0.2);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover);
+      box-shadow:
+        6px 6px 14px rgba(2, 62, 138, 0.8),
+        -6px -6px 14px rgba(2, 62, 138, 0.4);
+    }
+
+    .logout {
+      display: inline-block;
+      margin-top: 30px;
+      font-size: 0.95rem;
+      color: #a8dadc;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+
+    .logout:hover {
+      color: #f1faee;
+      text-decoration: underline;
+    }
+
+    .alert {
+      padding: 12px 18px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-size: 1rem;
+      box-shadow:
+        0 4px 12px rgba(0,0,0,0.4);
+      user-select: none;
+    }
+
+    .alert-success {
+      background-color: var(--success);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .alert-danger {
+      background-color: var(--error);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    @media (max-width: 500px) {
+      .profile-container {
+        padding: 30px 20px;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <h1>Admin Profile</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" novalidate>
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        value="{{ admin[1] }}"
+        required
+        autocomplete="username"
+      />
+
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        value="{{ admin[3] }}"
+        required
+        autocomplete="email"
+      />
+
+      <label for="password">New Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Leave blank to keep current"
+        autocomplete="new-password"
+      />
+
+      <label for="confirm_password">Confirm New Password</label>
+      <input
+        type="password"
+        id="confirm_password"
+        name="confirm_password"
+        placeholder="Leave blank to keep current"
+        autocomplete="new-password"
+      />
+
+      <button type="submit">Update Profile</button>
+    </form>
+
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+  </div>
+</body>
+</html>

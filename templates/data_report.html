@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Entries</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #d7e1ec, #f9fbfd);
+      color: #2e3a59;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      font-weight: 600;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #1b2738;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      background: #fff;
+      transition: box-shadow 0.3s ease;
+    }
+
+    table:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+
+    thead tr {
+      background: #3b506f;
+      color: #f0f4f8;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    th, td {
+      padding: 16px 24px;
+      text-align: left;
+      font-size: 1rem;
+      border-bottom: 1px solid #e6eaf0;
+      transition: background-color 0.25s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #e9f0fc;
+      cursor: default;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-entries {
+      text-align: center;
+      padding: 40px 0;
+      font-style: italic;
+      color: #9aa5b1;
+      font-size: 1.125rem;
+    }
+
+    a {
+      margin-top: 36px;
+      text-decoration: none;
+      background-color: #3b506f;
+      color: #fff;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 30px;
+      box-shadow: 0 4px 12px rgba(59, 80, 111, 0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      user-select: none;
+    }
+
+    a:hover {
+      background-color: #2a3b56;
+      box-shadow: 0 6px 18px rgba(42, 59, 86, 0.5);
+    }
+
+    a::before {
+      content: '←';
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    button.delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+    }
+
+    button.delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+      }
+
+      a {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>User Entries</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Entry Time</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry_id, entry_time, name in entries %}
+      <tr>
+        <td>{{ name }}</td>
+        <td>{{ entry_time }}</td>
+        <td>
+          <form method="POST" action="/delete_entry/{{ entry_id }}" style="margin: 0;">
+            <button type="submit" class="delete-btn">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td class="no-entries" colspan="3">No entries found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GuardEye Security Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #12121c;
+      color: #ffffff;
+    }
+
+    header {
+      background-color: #1e1e2f;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      color: #6c63ff;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .card {
+      background-color: #1e1e2f;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    h1, h2 {
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    #detection-status {
+      font-size: 20px;
+      color: #ff5252;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .button-group button {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.3s ease;
+    }
+
+    #start-btn {
+      background-color: #6c63ff;
+    }
+
+    #start-btn:hover {
+      background-color: #5548e2;
+    }
+
+    #stop-btn {
+      background-color: #ff5252;
+    }
+
+    #stop-btn:hover {
+      background-color: #e03b3b;
+    }
+
+    canvas {
+      background-color: #12121c;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    #videoFeed {
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #777;
+    }
+   
+    .report {
+  display: inline-block;
+  margin-top: 20px;
+  background-color: #6c63ff;
+  padding: 12px 24px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+}
+
+.report:hover {
+  background-color: #5548e2;
+  transform: translateY(-2px);
+}
+
+  </style>
+</head>
+<body>
+
+<header>GuardEye Security System</header> 
+<div style="text-align:center;">
+  <a href="{{ url_for('dashboard') }}" class="report">Get report</a>
+</div>
+
+
+<div class="container">
+  <h1>Welcome to the Dashboard</h1>
+  <p>Manage real-time detection and monitor your environment.</p>
+
+  <div class="grid">
+
+    <!-- Detection Controls -->
+    <div class="card">
+      <h2>Detection Control</h2>
+      <p id="detection-status">Status: Inactive</p>
+      <div class="button-group">
+        <button id="start-btn">Start Detection</button>
+        <button id="stop-btn" disabled>Stop Detection</button>
+      </div>
+      <img id="videoFeed" src="/video_feed" alt="Live Video Feed">
+    </div>
+
+    <!-- Temperature Chart -->
+    <div class="card">
+      <h2>Temperature Report (°C)</h2>
+      <canvas id="tempChart" width="400" height="300"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<footer>&copy; 2025 GuardEye Security. All rights reserved.</footer>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Detection control logic
+  const startBtn = document.getElementById("start-btn");
+  const stopBtn = document.getElementById("stop-btn");
+  const statusText = document.getElementById("detection-status");
+
+  startBtn.addEventListener("click", () => {
+    fetch('/start')
+      .then(response => response.text())
+      .then(data => {
+        statusText.textContent = "Status: Active";
+        statusText.style.color = "#6c63ff";
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        console.log(data);
+      });
+  });
+
+  stopBtn.addEventListener("click", () => {
+    fetch('/stop')
+      .then(response => response.text())
+      .then(data => {
+        statusText.textContent = "Status: Inactive";
+        statusText.style.color = "#ff5252";
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        console.log(data);
+      });
+  });
+
+  // Temperature Chart
+  const ctx = document.getElementById("tempChart").getContext("2d");
+  const tempChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: Array.from({ length: 20 }, (_, i) => i + 1),
+      datasets: [{
+        label: "Temperature (°C)",
+        data: Array.from({ length: 20 }, () => 22 + Math.random() * 4),
+        borderColor: "#6c63ff",
+        backgroundColor: "rgba(108, 99, 255, 0.1)",
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: "#6c63ff"
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          labels: { color: "#fff" }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#ccc" }
+        },
+        y: {
+          ticks: { color: "#ccc" },
+          suggestedMin: 20,
+          suggestedMax: 30
+        }
+      }
+    }
+  });
+
+  // Optional: Simulate real-time updates
+  setInterval(() => {
+    tempChart.data.datasets[0].data.shift();
+    tempChart.data.datasets[0].data.push(22 + Math.random() * 4);
+    tempChart.update();
+  }, 2000);
+</script>
+
+</body>
+</html>

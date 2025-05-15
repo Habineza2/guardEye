@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thief Detection System</title>
+  <style>
+    body {
+      background-color: #1a202c;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2d3748;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #818cf8;
+    }
+
+    nav a {
+      color: #d1d5db;
+      margin: 0 0.5rem;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #818cf8;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 5rem 1rem;
+      background: linear-gradient(to bottom right, #2d3748, #1a202c);
+    }
+
+    .hero h2 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      color: #9ca3af;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .hero a {
+      margin-top: 1.5rem;
+      display: inline-block;
+      background-color: #6366f1;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .hero a:hover {
+      background-color: #4f46e5;
+    }
+
+    section {
+      padding: 4rem 1rem;
+    }
+
+    .features {
+      background-color: #2d3748;
+      text-align: center;
+    }
+
+    .features h3 {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #818cf8;
+      margin-bottom: 2rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .feature-card {
+      background-color: #4b5563;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .feature-card h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      color: #cbd5e0;
+    }
+
+    .about {
+      background-color: #1a202c;
+      text-align: center;
+    }
+
+    .about h3 {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #818cf8;
+      margin-bottom: 1.5rem;
+    }
+
+    .about p {
+      color: #cbd5e0;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    footer {
+      background-color: #2d3748;
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: #a0aec0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <h1>GuardEye Security System</h1>
+      <nav>
+        <a href="#">Home</a>
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h2>AI-Powered Thief Detection</h2>
+    <p>Secure your property with real-time thief detection powered by machine learning.</p>
+    <a href="{{ url_for('login') }}">Please Login</a>
+  </section>
+
+  <section id="features" class="features">
+    <h3>Features</h3>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h4>Real-time Analysis</h4>
+        <p>Detect threats instantly using your camera feed.</p>
+      </div>
+      <div class="feature-card">
+        <h4>Door lock authomation</h4>
+        <p>Integrating door lock authomation by using ficial recognition</p>
+      </div>
+      <div class="feature-card">
+        <h4>Easy Integration</h4>
+        <p>Deploy with minimal setup on any PC or server.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <h3>About This Project</h3>
+    <p>This project uses a Convolutional Neural Network (CNN) trained on labeled images to classify whether a person is a thief or not, integrating TensorFlow and OpenCV for real-time detection.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Thief Detection Project | Made by Habineza Emmanuel</p>
+  </footer>
+
+</body>
+</html>
