@@ -48,7 +48,7 @@ except ImportError:
 
 
 app = Flask(__name__)
-app.secret_key = 'supersecretvalue123!'
+app.secret_key = ''
 
 
 
@@ -87,9 +87,9 @@ frame_to_show = None
 
 
 def send_email_alert(image_path, alert_type="thief"):
-    sender_email = "habinezae73@gmail.com"
+    sender_email = ""
     receiver_email = "your_email@example.com"
-    password = "ihda bqgy macg rebk"
+    password = ""
     msg = MIMEMultipart()
     
     if alert_type == "suspicious_activity":
