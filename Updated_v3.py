@@ -83,9 +83,9 @@ frame_to_show = None
 
 
 def send_email_alert(image_path):
-    sender_email = "habinezae73@gmail.com"
+    sender_email = ""
     receiver_email = "your_email@example.com"
-    password = "ihda bqgy macg rebk"
+    password = ""
     msg = MIMEMultipart()
     msg['subject'] = 'Thief Detected Alert'
     msg['From'] = sender_email

@@ -151,7 +151,7 @@ def send_email_alert(image_path, alert_type="thief"):
         print("[ERROR] Admin email not found. Cannot send email.")
         return
 
-    password = "ihda bqgy macg rebk"
+    password = ""
 
     msg = MIMEMultipart()
     if alert_type == "suspicious_activity":
