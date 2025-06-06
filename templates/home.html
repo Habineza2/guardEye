@@ -6,16 +6,16 @@
   <title>Thief Detection System</title>
   <style>
     body {
-      background-color: #1a202c;
-      color: white;
+      background-color: #f9fafb;
+      color: #1a202c;
       font-family: sans-serif;
       margin: 0;
       padding: 0;
     }
 
     header {
-      background-color: #2d3748;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      background-color: #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .header-container {
@@ -26,28 +26,40 @@
       justify-content: space-between;
       align-items: center;
     }
+    .header-container img{
+      height: 50px;
+      margin-left: 10px;
+      border: 1px solid black;
+      border-radius: 10px;
+    }
 
     header h1 {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #818cf8;
+      color: #4f46e5;
     }
 
     nav a {
-      color: #d1d5db;
+     
       margin: 0 0.5rem;
       text-decoration: none;
       transition: color 0.3s ease;
+   
+      padding: 10px;
+     
+      color: rgb(29, 27, 27);
+      border-radius: 10px;
     }
 
     nav a:hover {
-      color: #818cf8;
+      color: #34333b;
+      background-color: rgb(223, 212, 212);
     }
 
     .hero {
       text-align: center;
       padding: 5rem 1rem;
-      background: linear-gradient(to bottom right, #2d3748, #1a202c);
+      background: linear-gradient(to bottom right, #edf2f7, #f9fafb);
     }
 
     .hero h2 {
@@ -57,7 +69,7 @@
     }
 
     .hero p {
-      color: #9ca3af;
+      color: #4b5563;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -65,7 +77,7 @@
     .hero a {
       margin-top: 1.5rem;
       display: inline-block;
-      background-color: #6366f1;
+      background-color: #4f46e5;
       color: white;
       font-weight: 600;
       padding: 0.75rem 1.5rem;
@@ -76,7 +88,7 @@
     }
 
     .hero a:hover {
-      background-color: #4f46e5;
+      background-color: #4338ca;
     }
 
     section {
@@ -84,14 +96,14 @@
     }
 
     .features {
-      background-color: #2d3748;
+      background-color: #e5e7eb;
       text-align: center;
     }
 
     .features h3 {
       font-size: 2rem;
       font-weight: bold;
-      color: #818cf8;
+      color: #4f46e5;
       margin-bottom: 2rem;
     }
 
@@ -110,10 +122,10 @@
     }
 
     .feature-card {
-      background-color: #4b5563;
+      background-color: #ffffff;
       padding: 1.5rem;
       border-radius: 0.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     .feature-card h4 {
@@ -123,32 +135,32 @@
     }
 
     .feature-card p {
-      color: #cbd5e0;
+      color: #4b5563;
     }
 
     .about {
-      background-color: #1a202c;
+      background-color: #f9fafb;
       text-align: center;
     }
 
     .about h3 {
       font-size: 2rem;
       font-weight: bold;
-      color: #818cf8;
+      color: #4f46e5;
       margin-bottom: 1.5rem;
     }
 
     .about p {
-      color: #cbd5e0;
+      color: #4b5563;
       max-width: 700px;
       margin: 0 auto;
     }
 
     footer {
-      background-color: #2d3748;
+      background-color: #e2e8f0;
       text-align: center;
       padding: 1.5rem 1rem;
-      color: #a0aec0;
+      color: #6b7280;
     }
   </style>
 </head>
@@ -156,7 +168,7 @@
 
   <header>
     <div class="header-container">
-      <h1>GuardEye Security System</h1>
+     <img src="/image/4.png" id="img" />
       <nav>
         <a href="#">Home</a>
         <a href="#features">Features</a>
@@ -166,23 +178,29 @@
   </header>
 
   <section class="hero">
+    
     <h2>AI-Powered Thief Detection</h2>
     <p>Secure your property with real-time thief detection powered by machine learning.</p>
-    <a href="{{ url_for('login') }}">Please Login</a>
+    <a href="{{ url_for('login') }}">Login</a>
   </section>
 
   <section id="features" class="features">
     <h3>Features</h3>
     <div class="features-grid">
       <div class="feature-card">
+        
+        <img src="/image/1.jpeg" id="img" />
+
         <h4>Real-time Analysis</h4>
         <p>Detect threats instantly using your camera feed.</p>
       </div>
       <div class="feature-card">
-        <h4>Door lock authomation</h4>
-        <p>Integrating door lock authomation by using ficial recognition</p>
+        <img src="/image/3.jpeg" id="img" />
+        <h4>Door Lock Automation</h4>
+        <p>Integrates facial recognition for automated door locks.</p>
       </div>
       <div class="feature-card">
+        <img src="/image/2.jpeg" id="img" />
         <h4>Easy Integration</h4>
         <p>Deploy with minimal setup on any PC or server.</p>
       </div>

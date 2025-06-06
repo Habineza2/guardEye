@@ -1,57 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - Thief Detection System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>IoT SYSTEM Login</title>
+  <style>
+    body {
+      background-color:rgb(234, 238, 242);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-card {
+      background: #fff;
+      padding: 30px 150px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      text-align: center;
+      width: 360px;
+    }
+    .login-card img.logo {
+      width: 65px;
+      margin-bottom: 20px;
+    }
+    .login-card h2 {
+      margin-bottom: 30px;
+      font-size: 26px;
+      color: #222;
+    }
+    .form-group {
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px 14px 14px 46px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: 0.3s ease;
+    }
+    .form-group input:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.25);
+    }
+    .form-group .icon {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      transform: translateY(-50%);
+      width: 20px;
+      opacity: 0.65;
+    }
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      font-size: 13.5px;
+      color: #444;
+    }
+    .options input {
+      margin-right: 6px;
+    }
+    .options a {
+      text-decoration: none;
+      color: #007bff;
+      transition: 0.3s ease;
+    }
+    .options a:hover {
+      text-decoration: underline;
+    }
+    .login-btn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .login-btn:hover {
+      background: #0056b3;
+    }
+    .footer-links {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+      margin-top: 14px;
+    }
+    .footer-links img {
+      width: 17px;
+      margin-right: 8px;
+      opacity: 0.75;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
-
-  <!-- Header -->
-  <header class="bg-gray-800 shadow-md">
-    <div class="container mx-auto flex justify-between items-center p-4">
-      <h1 class="text-2xl font-bold text-indigo-400">GuardEye </h1>
-      
-    </div>
-  </header>
-
-  <!-- Login Section -->
-  <section class="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-800 to-gray-900">
-    <div class="bg-gray-700 p-8 rounded-lg shadow-lg max-w-sm w-full">
-      <h3 class="text-3xl font-semibold text-indigo-400 mb-6 text-center">Login</h3>
-      
-      <form action="/login" method="POST">
-  <div class="mb-4">
-    <label for="email" class="block text-gray-300">Email</label>
-    <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-  </div>
-  
-  <div class="mb-4">
-    <label for="password" class="block text-gray-300">Password</label>
-    <input type="password" id="password" name="password" class="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-  </div>
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="mb-4">
-        {% for category, message in messages %}
-          <div class="p-3 mb-2 rounded bg-red-600 text-white">
-            {{ message }}
-          </div>
-        {% endfor %}
+<body>
+  <div class="login-card">
+    <!-- Cloud logo -->
+    <img src="https://cdn-icons-png.flaticon.com/512/414/414927.png" class="logo" alt="logo">
+    <h2>IoT SYSTEM</h2>
+    <form method="POST" action="#">
+      <div class="form-group">
+        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" class="icon" alt="user icon">
+        <input type="email" name="email" placeholder="user@example.com" required>
       </div>
-    {% endif %}
-  {% endwith %}
-
-  <button type="submit" class="w-full mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition">
-    Login
-  </button>
-</form>
-
-      
+      <div class="form-group">
+        <img src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png" class="icon" alt="lock icon">
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <div class="options">
+        <label><input type="checkbox" checked> Remember me</label>
+        <a href="{{ url_for('forgot_password_page') }}">Forgot password?</a>
+      </div>
+      <button type="submit" class="login-btn">Log in</button>
+    </form>
+    <div class="footer-links" style="margin-top: 22px;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2972/2972785.png" alt="device icon">
+      <span>Connect to device</span>
     </div>
-  </section>
-
+    <div class="footer-links">
+      <img src="https://cdn-icons-png.flaticon.com/512/3064/3064160.png" alt="secure icon">
+      <span>Secure login</span>
+    </div>
+  </div>
 </body>
 </html>

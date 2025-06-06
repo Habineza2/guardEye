@@ -1,107 +1,307 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Register - Server Room Access | GuardEye</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    /* Subtle fade-in animation for form container */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    :root {
+      --light-bg: #f9f9f9;
+      --white: #ffffff;
+      --gray: #dddddd;
+      --dark-text: #333333;
+      --primary: #3498db;
+      --success: #2ecc71;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light-bg);
+      color: var(--dark-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--white);
+      width: 240px;
+      height: 100vh;
+      padding: 20px;
+      border-right: 1px solid var(--gray);
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 30px;
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar ul li {
+      margin: 15px 0;
+    }
+
+    .sidebar a,
+    .sidebar label {
+      color: var(--dark-text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      cursor: pointer;
+      font-size: 1.05rem;
+    }
+
+    .sidebar a:hover,
+    .sidebar label:hover {
+      background: var(--gray);
+    }
+
+    /* Hide the checkbox */
+    .sidebar input[type="checkbox"] {
+      display: none;
+    }
+
+    /* Submenu is hidden by default */
+    .sidebar ul li ul {
+      display: none;
+      margin-left: 20px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    /* Show submenu when checkbox is checked */
+    .sidebar input[type="checkbox"]:checked + label + ul {
+      display: block;
+    }
+
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 20px;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--white);
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      object-fit: cover;
+    }
+
+    section {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .form-container {
+      background: var(--white);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      padding: 2.5rem 3rem;
+      animation: fadeInUp 0.7s ease forwards;
+    }
+
     @keyframes fadeInUp {
-      0% {
+      from {
         opacity: 0;
         transform: translateY(20px);
       }
-      100% {
+      to {
         opacity: 1;
         transform: translateY(0);
       }
     }
+
+    .form-container h3 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #ccc;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    input[type="file"] {
+      padding: 0.5rem 1rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 6px rgba(52, 152, 219, 0.4);
+    }
+
+    .file-note {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: -0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      padding: 1rem;
+      border: none;
+      border-radius: 9999px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #2c80b4;
+      transform: scale(1.03);
+    }
+
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
+    }
+
+    svg {
+      width: 1.2rem;
+      height: 1.2rem;
+      stroke: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+        padding: 10px;
+      }
+      .sidebar h2 {
+        display: none;
+      }
+      .main {
+        margin-left: 80px;
+        padding: 10px;
+      }
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-gray-100 font-sans antialiased">
+<body>
 
-  <!-- Header -->
-  <header class="bg-gradient-to-r from-indigo-700 via-indigo-900 to-indigo-700 shadow-lg sticky top-0 z-50">
-    <div class="container mx-auto flex justify-between items-center p-6">
-      <h1 class="text-4xl font-extrabold text-indigo-400 tracking-wider select-none drop-shadow-lg">
-        GuardEye
-      </h1>
+  <div class="sidebar" role="navigation" aria-label="Main Sidebar">
+    <h2>Data Reporting</h2>
+    <ul>
+      <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-chart-line" aria-hidden="true"></i>Dashboard</a></li>
+      <li><a href="{{ url_for('register') }}"><i class="fas fa-user-plus" aria-hidden="true"></i>New User</a></li>
+      <li>
+        <input type="checkbox" id="menu-toggle" aria-expanded="false" aria-controls="submenu-report" />
+        <label for="menu-toggle"><i class="fas fa-table" aria-hidden="true"></i>Table of report</label>
+        <ul id="submenu-report" aria-label="Submenu">
+          <li><a href="{{ url_for('data_report') }}">User Entries</a></li>
+          <li><a href="{{ url_for('view_intrusions') }}">Logs</a></li>
+          <li><a href="{{ url_for('view_users') }}">User List</a></li>
+        </ul>
+      </li>
+      <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle" aria-hidden="true"></i>Profile</a></li>
+      <li><a href="{{ url_for('welcome') }}"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>Back to detection page</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <div class="navbar">
+      <span>Welcome to the System</span>
+      <a href="{{ url_for('profile') }}"><img src="https://randomuser.me/api/portraits/lego/1.jpg" class="avatar" alt="User Avatar" /></a>
     </div>
-  </header>
 
-  <!-- Register Section -->
-  <section class="flex justify-center items-center min-h-screen px-4">
-    <div
-      class="bg-gradient-to-tr from-gray-800 via-gray-900 to-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-10"
-      style="animation: fadeInUp 0.8s ease forwards"
-    >
-      <h3 class="text-4xl font-bold text-indigo-400 mb-10 text-center tracking-wide drop-shadow-md">
-        Register Authorized Person
-      </h3>
+    <section>
+      <div class="form-container">
+        <h3>Register Authorized Person</h3>
 
-      <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div>
+              {% for category, message in messages %}
+                <p style="
+                  color: {% if category == 'error' %}#e74c3c{% elif category == 'success' %}#2ecc71{% else %}#3498db{% endif %};
+                  font-weight: 600;
+                  margin-bottom: 1rem;
+                ">{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
-        <div>
-          <label for="name" class="block text-gray-400 text-lg mb-2 font-semibold">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            class="w-full rounded-xl bg-gray-900 border border-indigo-600 px-5 py-3 text-white placeholder-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-400 transition"
-            required
-          />
-        </div>
+        <form method="POST" enctype="multipart/form-data" class="form" novalidate>
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="John Doe" required />
 
-        <div>
-          <label for="email" class="block text-gray-400 text-lg mb-2 font-semibold">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="john@example.com"
-            class="w-full rounded-xl bg-gray-900 border border-indigo-600 px-5 py-3 text-white placeholder-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-400 transition"
-            required
-          />
-        </div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="john@example.com" required />
 
-        <div>
-          <label for="phone" class="block text-gray-400 text-lg mb-2 font-semibold">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+1 234 567 890"
-            class="w-full rounded-xl bg-gray-900 border border-indigo-600 px-5 py-3 text-white placeholder-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-400 transition"
-            required
-          />
-        </div>
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="+1 234 567 890" required />
 
-        <div>
-          
-          <input
-            type="file"
-            id="images"
-            name="images"
-            accept="image/*"
-            multiple
-            class="w-full rounded-xl bg-gray-900 border border-indigo-600 px-4 py-3 text-indigo-300 cursor-pointer hover:text-indigo-400 transition"
-            required
-          />
-          <p class="text-sm text-indigo-300 mt-2 italic select-none">Please select exactly 5 images.</p>
-        </div>
+          <label for="images">Upload Images</label>
+          <input type="file" id="images" name="images" accept="image/*" multiple required />
+          <p class="file-note">Please select at least 5 images.</p>
 
-        <button
-          type="submit"
-          class="w-full bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 text-white font-bold py-4 rounded-full shadow-lg shadow-indigo-700/50 transition transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-400/70"
-        >
-          Register Person
-        </button>
-
-      </form>
-    </div>
-  </section>
+          <button type="submit">Register Person</button>
+        </form>
+      </div>
+    </section>
+  </div>
 
 </body>
 </html>

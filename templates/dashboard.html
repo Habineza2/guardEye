@@ -2,40 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Data Reporting</title>
+  <title>Security Dashboard</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --dark-blue: #0d1b2a;
-      --medium-blue: #1b263b;
-      --light-blue: #415a77;
-      --text-light: #e0e1dd;
-      --card-bg: #1b263b;
+      --light-bg: #f9f9f9;
       --white: #ffffff;
-      --green: #2ecc71;
+      --gray: #dddddd;
+      --dark-text: #333333;
+      --primary: #3498db;
+      --success: #2ecc71;
+      --danger: tomato;
     }
 
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
-      background: var(--dark-blue);
-      color: var(--text-light);
+      background: var(--light-bg);
+      color: var(--dark-text);
     }
 
     .sidebar {
-      background: var(--medium-blue);
-      color: var(--text-light);
-      width: 240px;
+      background: var(--white);
+      width: 250px;
       height: 100vh;
-      padding: 20px;
+      padding: 30px;
+      border-right: 1px solid var(--gray);
     }
 
     .sidebar h2 {
       margin-bottom: 30px;
-      font-size: 22px;
-      color: var(--white);
+      color: var(--primary);
     }
 
     .sidebar ul {
@@ -45,34 +45,27 @@
 
     .sidebar ul li {
       margin: 15px 0;
-      position: relative;
+
     }
 
-    .sidebar ul li a {
-      color: var(--text-light);
+    .sidebar ul li a, .sidebar ul li label {
+      color: var(--dark-text);
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 5px 10px;
+      padding: 8px 12px;
       border-radius: 5px;
       transition: background 0.3s ease;
+      cursor: pointer;
     }
 
-    .sidebar ul li a:hover {
-      background: var(--light-blue);
+    .sidebar ul li a:hover, .sidebar ul li label:hover {
+      background: var(--gray);
     }
 
-    /* Dropdown menu using checkbox toggle (pure CSS) */
     .sidebar ul li input[type="checkbox"] {
       display: none;
-    }
-
-    .sidebar ul li label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
     }
 
     .sidebar ul li ul {
@@ -86,28 +79,33 @@
       display: block;
     }
 
+    .sidebar ul li.active a {
+      background: var(--primary);
+      color: white;
+    }
+
     .main {
       flex: 1;
       padding: 20px;
-      background: var(--dark-blue);
     }
 
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--medium-blue);
+      background: var(--white);
       padding: 15px 20px;
       border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     .avatar {
       width: 40px;
       border-radius: 50%;
-      border: 2px solid var(--light-blue);
+      border: 2px solid var(--primary);
     }
 
-    .cards {
+    .cards, .intrusion-cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
@@ -115,27 +113,39 @@
     }
 
     .card {
-      background: var(--card-bg);
+      background: var(--white);
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      color: var(--text-light);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.15);
     }
 
     .card h3 {
       margin-bottom: 10px;
+      font-size: 1.2rem;
     }
 
     .green {
-      color: var(--green);
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .red {
+      color: var(--danger);
+      font-weight: bold;
     }
 
     .chart-container {
-      background: var(--card-bg);
+      background: var(--white);
       padding: 20px;
       border-radius: 10px;
-      color: var(--text-light);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     @media (max-width: 768px) {
@@ -143,27 +153,25 @@
         width: 100px;
         padding: 10px;
       }
-
       .sidebar h2 {
         display: none;
       }
-
       .sidebar ul li a {
         font-size: 12px;
         gap: 5px;
       }
-
       .main {
         padding: 10px;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
     <h2>Data Reporting</h2>
     <ul>
-      <li><a href="#"><i class="fas fa-chart-line"></i>Dashboard</a></li>
+      <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-chart-line"></i>Dashboard</a></li>
       <li><a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i>New User</a></li>
       <li>
         <input type="checkbox" id="menu-toggle">
@@ -175,111 +183,102 @@
         </ul>
       </li>
       <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a></li>
-      <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+      <li><a href="{{ url_for('welcome') }}"><i class="fas fa-sign-out-alt"></i>Back to detection page</a></li>
     </ul>
   </div>
 
   <div class="main">
     <div class="navbar">
-      <span>Welcome to the System</span>
-      <img src="https://randomuser.me/api/portraits/lego/1.jpg" class="avatar" alt="User Avatar">
-
+      <span> <h3>Welcome to the system dashboard</h3></span>
+      <a href="{{ url_for('profile') }}"><img src="https://randomuser.me/api/portraits/lego/1.jpg" class="avatar" alt="User Avatar"></a>
     </div>
 
     <div class="cards">
       <div class="card">
-        <h3>🌡️ Temperature</h3>
-        <p>{{ data.temperature }} ℃</p>
+        <h3><i class="fas fa-fire"></i>Fire Status</h3>
+        <p id="fireStatus" class="{{ 'green' if data.fire_status == 'Safe' else 'red' }}">{{ data.fire_status }}</p>
       </div>
       <div class="card">
-        <h3>💧 Humidity</h3>
-        <p>{{ data.humidity }} %</p>
+        <div style="font-size: 1.5rem; margin-bottom: 8px; color: var(--primary);">
+          <i class="fas fa-user-clock"></i> Last Entry
+        </div>
+        <div style="font-weight: 600; font-size: 1.25rem;">{{ data.last_entry.time }}</div>
+        {% if data.last_entry.user %}
+        <div style="opacity: 0.7; margin-top: 4px;">{{ data.last_entry.user }}</div>
+        {% endif %}
       </div>
+    </div>
+
+    <div class="intrusion-cards">
       <div class="card">
-        <h3>🔥 Fire Status</h3>
-        <p class="green">{{ data.fire_status }}</p>
+        <div style="font-size: 1.5rem; margin-bottom: 8px; color: var(--primary);">
+          <i class="fas fa-user-secret"></i> Last Intrusion
+        </div>
+        <div style="font-weight: 600; font-size: 1.25rem;">
+          {{ data.last_intrusion_time if data.last_intrusion_time else 'No intrusions yet' }}
+        </div>
       </div>
-      
-     <div style="
-  background: var(--card-bg);
-  color: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  width: 200px;
-  font-family: 'Inter', sans-serif;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: default;
-">
-  <div style="font-size: 2rem; margin-bottom: 8px; color: #6a5acd; display: flex; align-items: center; justify-content: center; gap: 8px;">
-   
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" style="flex-shrink: 0;">
-      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-    </svg>
-    Last Entry
-  </div>
 
-  <div style="font-weight: 600; font-size: 1.25rem;">{{ data.last_entry.time }}</div>
-  {% if data.last_entry.user %}
-    <div style="opacity: 0.7; margin-top: 4px; font-size: 1rem;">{{ data.last_entry.user }}</div>
-  {% endif %}
-</div>
-
-<script>
-  const card = document.currentScript.previousElementSibling;
-  card.addEventListener('mouseenter', () => {
-    card.style.transform = 'translateY(-4px)';
-    card.style.boxShadow = '0 12px 36px rgba(0,0,0,0.3)';
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-    card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
-  });
-</script>
-
-
+      <div class="card">
+        <div style="font-size: 1.5rem; margin-bottom: 8px; color: var(--primary);">
+          <i class="fas fa-users"></i> Total Intrusions
+        </div>
+        <div style="font-weight: 600; font-size: 1.5rem;">
+          {{ data.total_intrusions }}
+        </div>
+      </div>
     </div>
 
-    <div class="chart-container">
-      <h3>Temperature Report</h3>
-      <canvas id="tempChart"></canvas>
-    </div>
+    <h2>Intrusions Detected Over Time (Hourly)</h2>
+    <canvas id="intrusionChart" width="800" height="400"></canvas>
   </div>
 
+  <!-- JS scripts at end -->
   <script>
-    const ctx = document.getElementById('tempChart').getContext('2d');
-    const tempChart = new Chart(ctx, {
-      type: 'line',
+    const ctx = document.getElementById('intrusionChart').getContext('2d');
+    let chart = new Chart(ctx, {
+      type: 'bar',
       data: {
-        labels: [...Array({{ data.temp_history|length }}).keys()].map(i => 'T' + i),
+        labels: [],
         datasets: [{
-          label: 'Temperature (℃)',
-          data: {{ data.temp_history }},
-          borderColor: '#2ecc71',
-          backgroundColor: 'rgba(46, 204, 113, 0.2)',
-          tension: 0.4,
+          label: 'Intrusions',
+          data: [],
+          backgroundColor: 'tomato'
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: {
-            labels: {
-              color: 'white'
-            }
-          }
-        },
         scales: {
-          x: {
-            ticks: { color: 'white' }
-          },
-          y: {
-            ticks: { color: 'white' }
-          }
+          x: { ticks: { maxRotation: 90, minRotation: 45 } },
+          y: { beginAtZero: true }
         }
       }
     });
+
+    async function fetchChartData() {
+      const response = await fetch('/data');
+      const result = await response.json();
+      chart.data.labels = result.labels;
+      chart.data.datasets[0].data = result.values;
+      chart.update();
+    }
+
+    async function fetchFireStatus() {
+      const response = await fetch('/data');
+      const result = await response.json();
+      const fireStatusEl = document.querySelector("#fireStatus");
+      if (fireStatusEl) {
+        fireStatusEl.textContent = result.fire_status;
+        fireStatusEl.className = result.fire_status.includes("Fire") ? "red" : "green";
+      }
+    }
+
+    fetchChartData();
+    fetchFireStatus();
+
+    setInterval(fetchChartData, 5000);
+    setInterval(fetchFireStatus, 1000);
   </script>
+
 </body>
 </html>
